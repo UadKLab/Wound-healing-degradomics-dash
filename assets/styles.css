@@ -1,0 +1,39 @@
+.input-style {
+    width: 300px;
+    height: 30px;
+    border: 1px solid #ced4da; /* Match border color used by dbc */
+    border-radius: 0.25rem; /* Match border radius used by dbc */
+}
+
+/* Define styles for the dropdown button */
+.dropdown-style .Select-control {
+    width: 300px; /* Adjust button width as needed */
+    height: 30px;
+    border: 1px solid #ced4da; /* Match border color used by dbc */
+    border-radius: 0.25rem; /* Match border radius used by dbc */
+}
+
+/* Define styles for the dropdown menu */
+.dropdown-style .Select-menu-outer {
+    width: 1000px; /* Adjust dropdown menu width as needed */
+}
+
+
+
+.plot-tabs-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0px;
+}
+
+.plot-tab {
+    width: 100px !important; /* Set width of tabs */
+    height: 15px !important; /* Set height of tabs */
+    line-height: 15px !important; /* Center text vertically within tabs */
+    display: flex; /* Use flexbox for vertical centering */
+    align-items: center !important; /* Vertically center text */
+    border: 1px solid #ced4da; /* Match border color used by dbc */
+    border-radius: 0.25rem; /* Match border radius used by dbc */
+}
+
+
