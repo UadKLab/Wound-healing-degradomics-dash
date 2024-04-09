@@ -9,10 +9,10 @@ import plotly.graph_objects as go
 
 
 ### Load data
-protein_lookup_df = pd.read_csv('data/csv/Normalized_impaired_proteins.csv', delimiter=';', usecols=['Accession', 'Description'])
-peptide_lookup_df = pd.read_csv('data/csv/Normalized_impaired_peptides.csv', delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
-protein_data_df = pd.read_csv('data/csv/Imputed_4lowID_removed_joined_proteins.csv', delimiter=';', decimal=',')
-peptide_data_df = pd.read_csv('data/csv/Imputed_4lowID_removed_joined_peptides.csv', delimiter=';', decimal=',')
+protein_lookup_df = pd.read_csv('data/Normalized_impaired_proteins.csv', delimiter=';', usecols=['Accession', 'Description'])
+peptide_lookup_df = pd.read_csv('data/Normalized_impaired_peptides.csv', delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
+protein_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_proteins.csv', delimiter=';', decimal=',')
+peptide_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_peptides.csv', delimiter=';', decimal=',')
 patients_txt = open('data/patients.txt', 'r').read()
 
 
@@ -55,7 +55,7 @@ plot_margin = dict(
     pad=8  # padding
 )
 
-confidence = 0.50
+confidence = 0.75
 confidence_print = int(100*confidence)
 x_axis_options = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8']
 
@@ -63,7 +63,7 @@ x_axis_options = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8']
 
 ## Utils
 
-def confidence_interval(data, confidence=0.95):
+def confidence_interval(data, confidence):
     '''
     Calculates upper and lower confidence interval of series of data.
     Arguments:
@@ -83,7 +83,7 @@ def confidence_interval(data, confidence=0.95):
     return mean - margin_error, mean + margin_error
 
 
-def group_data_Df_transform_to_plot_format(data_df, group_column_name):
+def group_data_df_transform_to_plot_format(data_df, group_column_name):
     '''
     Transforms a dataframe (protein_data_df or peptide_data_df) to be on a nice format to slice and plot.
     NaN values are ignored in aggregation.
@@ -171,7 +171,7 @@ app.layout = html.Div(
             className='top-banner-container',
             children=[
                 html.Img(src=dtu_logo, className='logo'),
-                html.H1('Kostas Dashboard', className='header')                
+                html.H1('Wound Healing Degradomics ', className='header')
             ]
         ),   # end top-banner-container
 
@@ -197,7 +197,7 @@ app.layout = html.Div(
                         dcc.Dropdown(
                             className='dcc-dropdown-style',
                             id='protein-accession-dropdown',
-                            options = sorted([{'label': html.Div([html.B(row['Accession']), ' - ', row['Description']]), 'value': row['Accession']} for _, row in protein_lookup_df.iterrows()], key=lambda x: x['value']),
+                            options = [{'label': html.Div([html.B(row['Accession']), ' - ', row['Description']]), 'value': row['Accession']} for _, row in protein_lookup_df.iterrows()],
                             value=None
                         )
                     ]
@@ -266,7 +266,7 @@ app.layout = html.Div(
                             ]
                         ),
 
-                        dcc.Graph(id='plot', className='plot-graph')
+                        dcc.Graph(id='plot', className='plot-graph', config={'displayModeBar': False})
 
                     ]   
                 )   # end plot & group_checklist container
@@ -278,7 +278,6 @@ app.layout = html.Div(
 )   # end dashboard-container
 
 
-# TODO: leyfa notenda að velja CI í viðmóti
 
 ## Callbacks
 
@@ -302,9 +301,9 @@ def update_protein_dropdown(search_value):
                 else:
                     highlighted.append(html.Span(segment))
             highlighted_options.append({'label': html.Div(highlighted), 'value': row['Accession']})
-        return sorted(highlighted_options, key=lambda x: x['value'])
+        return highlighted_options
     else:
-        return sorted([{'label': html.Div([html.B(row['Accession']), ' - ', row['Description']]), 'value': row['Accession']} for _, row in protein_lookup_df.iterrows()], key=lambda x: x['value'])
+        return [{'label': html.Div([html.B(row['Accession']), ' - ', row['Description']]), 'value': row['Accession']} for _, row in protein_lookup_df.iterrows()]
 
 
 # Callback to show peptides in dropdown that are part of the selected protein
@@ -315,7 +314,7 @@ def update_protein_dropdown(search_value):
 def update_peptide_dropdown(selected_protein):
     if selected_protein:
         filtered_peptides = peptide_lookup_df[peptide_lookup_df['Master Protein Accessions'].apply(lambda x: selected_protein in x)]
-        return sorted([{'label': row['Annotated Sequence'], 'value': row['Annotated Sequence']} for _, row in filtered_peptides.iterrows()], key=lambda x: x['value'])
+        return [{'label': row['Annotated Sequence'], 'value': row['Annotated Sequence']} for _, row in filtered_peptides.iterrows()]
     else:
         return []
 
@@ -329,7 +328,7 @@ def update_peptide_dropdown(selected_protein):
      Input('patients-checklist-2', 'value'),
      Input('plot-tabs', 'value')]
 )
-def update_protein_plot(selected_protein, selected_peptide, selected_groups_1, selected_groups_2, selected_tab):
+def update_plot(selected_protein, selected_peptide, selected_groups_1, selected_groups_2, selected_tab):
 
     traces = []
     annotations = [
@@ -360,7 +359,7 @@ def update_protein_plot(selected_protein, selected_peptide, selected_groups_1, s
     if selected and (selected_groups_1 or selected_groups_2):         
 
         # Transform data on the fly based on filter
-        filtered_data_df = group_data_Df_transform_to_plot_format(data_df[data_df[group_column_name] == selected], group_column_name)
+        filtered_data_df = group_data_df_transform_to_plot_format(data_df[data_df[group_column_name] == selected], group_column_name)
 
         selected_groups = (selected_groups_1 or []) + (selected_groups_2 or [])            
         
