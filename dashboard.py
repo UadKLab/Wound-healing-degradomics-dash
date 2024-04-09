@@ -423,7 +423,7 @@ def update_plot(selected_protein, selected_peptide, selected_groups_1, selected_
             categoryarray=x_axis_options,
             range=[-0.1, len(x_axis_options) - 0.9]  # Adjust the range to center the categories
         ),
-        yaxis=dict(title='Log Transformed Values', type='linear', gridcolor='lightgrey'),
+        yaxis=dict(title='Log Transformed Values', type='linear', gridcolor='lightgrey', rangemode='tozero'),
         showlegend=True,
         margin=plot_margin,
         annotations=annotations
