@@ -1,0 +1,25 @@
+version: 1.0
+runtime: python39  # Specifies Python 3.9, adjust if needed
+build:
+  commands:
+    build:
+      - pip install -r requirements.txt  # Install dependencies
+
+run:
+  runtime-version: 3.9.13  # Lock to Python 3.9.16 specifically
+  command: python app.py  # Replace with your application's entry point
+  network:
+    port: 8080  # Specify the port your app listens to
+
+# Commented out section is to show how to use environment variables and secrets (you can create secrets using AWS Secrets Manager)
+  # env:  # Environment variables for runtime
+  #   - name: MY_VAR_EXAMPLE
+  #     value: "example"
+  # secrets:  # Secrets (Sensitive information) for runtime
+  #   - name: MY_SECRET_USERNAME
+  #     value-from: "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-secret-Abc123"
+  #   - name: MY_PARAMETER
+  #     value-from: "arn:aws:ssm:us-east-1:123456789012:parameter/my-parameter-name"
+
+
+# "The App Runner configuration file doesn’t include operational settings, such as CPU and memory."
