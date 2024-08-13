@@ -1,12 +1,12 @@
 version: 1.0
-runtime: python39  # Specifies Python 3.9, adjust if needed
+runtime: python38  # Specifies Python 3.9, adjust if needed
 build:
   commands:
     build:
       - pip install -r requirements.txt  # Install dependencies
 
 run:
-  runtime-version: 3.9.13  # Lock to Python 3.9.16 specifically
+  runtime-version: 3.8.16  # Lock to Python 3.9.16 specifically
   command: python app.py  # Replace with your application's entry point
   network:
     port: 8080  # Specify the port your app listens to
