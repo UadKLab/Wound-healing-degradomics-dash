@@ -1,5 +1,5 @@
 version: 1.0
-runtime: python38  # Specifies Python 3.9, adjust if needed
+runtime: python3  # Specifies Python 3.9, adjust if needed
 build:
   commands:
     build:
