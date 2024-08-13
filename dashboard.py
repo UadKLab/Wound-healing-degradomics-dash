@@ -12,18 +12,18 @@ import boto3
 
 
 ### Environment variables
-load_dotenv()
-aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+# load_dotenv()
+# aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+# aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 
 ### Load data
-s3 = boto3.client(
-    's3',
-    aws_access_key_id=aws_access_key_id,
-    aws_secret_access_key=aws_secret_access_key
-)
-#s3 = boto3.client('s3')
+# s3 = boto3.client(
+#     's3',
+#     aws_access_key_id=aws_access_key_id,
+#     aws_secret_access_key=aws_secret_access_key
+# )
+s3 = boto3.client('s3')
 bucket_name = 'wound-healing-storage'
 
 obj = s3.get_object(Bucket=bucket_name, Key='Normalized_impaired_proteins.csv')
