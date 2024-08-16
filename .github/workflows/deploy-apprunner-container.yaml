@@ -26,7 +26,7 @@ on:
 
 env:
   AWS_REGION: eu-west-1  # App Runner service region
-  ECR_REPOSITORY: 009280807623.dkr.ecr.eu-west-1.amazonaws.com/wound-healing-dashboard-repository  # ECR repository URI
+  ECR_REPOSITORY: wound-healing-dashboard-repository  # ECR repository name
   AWS_ACCOUNT_ID: 009280807623  # AWS account ID
   APP_RUNNER_SERVICE_NAME: wound-healing-container-service  # App Runner service name
   APP_RUNNER_SERVICE_ID: 24494e181cec4c97ae2ba4392f80273f   # App Runner service ID
