@@ -68,8 +68,8 @@ jobs:
     - name: Update App Runner service
       run: |
         aws apprunner update-service \
-          --service-arn arn:aws:apprunner:${{ env.AWS_REGION }}:${{ env.AWS_ACCOUNT_ID }}:service/${{ env.APP_RUNNER_SERVICE_NAME }}/${{ env.APP_RUNNER_SERVICE_ID }} \
-          --source-configuration ImageRepository='{ "ImageIdentifier": "'"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"'", "ImageRepositoryType": "ECR" }'
+          --service-arn arn:aws:apprunner:eu-west-1:9280807623:service/wound-healing-container-service/24494e181cec4c97ae2ba4392f80273f \
+          --source-configuration ImageRepository="{\"ImageIdentifier\": \"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\", \"ImageRepositoryType\": \"ECR\"}"
 
 
 # name: Deploy to AWS App Runner (ECR)
