@@ -36,11 +36,6 @@ peptide_data_df = pd.read_csv(obj['Body'], delimiter=';', decimal=',')
 obj = s3.get_object(Bucket=bucket_name, Key='patients.txt')
 patients_txt = obj['Body'].read().decode('utf-8')
 
-# protein_lookup_df = pd.read_csv('data/Normalized_impaired_proteins.csv', delimiter=';', usecols=['Accession', 'Description'])
-# peptide_lookup_df = pd.read_csv('data/Normalized_impaired_peptides.csv', delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
-# protein_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_proteins.csv', delimiter=';', decimal=',')
-# peptide_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_peptides.csv', delimiter=';', decimal=',')
-# patients_txt = open('data/patients.txt', 'r').read()
 
 ### Set-up
 dtu_logo = 'assets/dtu_logo.png'
