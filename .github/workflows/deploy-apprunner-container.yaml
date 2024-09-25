@@ -25,11 +25,14 @@ on:
     branches: [ "main" ]
 
 env:
+  # Since leading zeros in aws account id were omitted when using the env variable I got error when updating the 
+  # apprunner service, so instead I use the whole ARN of the service
   AWS_REGION: eu-west-1  # App Runner service region
   ECR_REPOSITORY: wound-healing-dashboard-repository  # ECR repository name
-  AWS_ACCOUNT_ID: 009280807623  # AWS account ID
-  APP_RUNNER_SERVICE_NAME: wound-healing-container-service  # App Runner service name
-  APP_RUNNER_SERVICE_ID: 24494e181cec4c97ae2ba4392f80273f   # App Runner service ID
+  #AWS_ACCOUNT_ID: 009280807623  # AWS account ID
+  #APP_RUNNER_SERVICE_NAME: wound-healing-container-service  # App Runner service name
+  #APP_RUNNER_SERVICE_ID: 24494e181cec4c97ae2ba4392f80273f   # App Runner service ID
+  APP_RUNNER_SERVICE_ARN: arn:aws:apprunner:eu-west-1:009280807623:service/wound-healing-container-service/24494e181cec4c97ae2ba4392f80273f
 
 permissions:
   contents: read
@@ -71,58 +74,10 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         aws apprunner update-service \
-          --service-arn arn:aws:apprunner:${{ env.AWS_REGION }}:009280807623:service/${{ env.APP_RUNNER_SERVICE_NAME }}/${{ env.APP_RUNNER_SERVICE_ID }} \
+          --service-arn ${{ env.APP_RUNNER_SERVICE_ARN }} \
           --source-configuration "{\"ImageRepository\": {\"ImageIdentifier\": \"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\", \"ImageRepositoryType\": \"ECR\"}}"
 
-    # - name: Update App Runner service
-    #   run: |
-    #     aws apprunner update-service \
-    #       --service-arn arn:aws:apprunner:eu-west-1:009280807623:service/wound-healing-container-service/24494e181cec4c97ae2ba4392f80273f \
-    #       --source-configuration "{\"ImageRepository\": {\"ImageIdentifier\": \"009280807623.dkr.ecr.eu-west-1.amazonaws.com/wound-healing-dashboard-repository:805956d906e93b2f25b1e43fd84980f5f95997fc\", \"ImageRepositoryType\": \"ECR\"}}"
-        
-# aws apprunner update-service \
-#   --service-arn arn:aws:apprunner:${{ env.AWS_REGION }}:${{ env.AWS_ACCOUNT_ID }}:service/${{ env.APP_RUNNER_SERVICE_NAME }}/${{ env.APP_RUNNER_SERVICE_ID }} \
-#   --source-configuration "{\"ImageRepository\": {\"ImageIdentifier\": \"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\", \"ImageRepositoryType\": \"ECR\"}}"
-
-
-# name: Deploy to AWS App Runner (ECR)
-
-# on:
-#   push:
-#     branches:
-#       - main  # Trigger on push to the main branch
-#       #- dev
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
-
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
-
-#       - name: Log in to Amazon ECR
-#         id: login-ecr
-#         uses: aws-actions/amazon-ecr-login@v2   # need to setup relevant github secrets to login
-
-#       - name: Build, tag, and push the Docker image to Amazon ECR
-#         env:
-#           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
-#           IMAGE_TAG: latest
-#         run: |
-#           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-#           docker push $ECR_REPOSITORY:$IMAGE_TAG
-
-#       - name: Deploy to AWS App Runner
-#         env:
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           AWS_REGION: ${{ secrets.AWS_REGION }}
-#           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
-#         run: |
-#           aws apprunner update-service --service-arn <your-service-arn> \
-#             --source-configuration ImageRepository={ImageIdentifier=$ECR_REPOSITORY:$IMAGE_TAG,ImageRepositoryType=ECR}
+      # aws apprunner update-service \
+      #   --service-arn arn:aws:apprunner:${{ env.AWS_REGION }}:${{ env.AWS_ACCOUNT_ID }}:service/${{ env.APP_RUNNER_SERVICE_NAME }}/${{ env.APP_RUNNER_SERVICE_ID }} \
+      #   --source-configuration "{\"ImageRepository\": {\"ImageIdentifier\": \"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\", \"ImageRepositoryType\": \"ECR\"}}"
 

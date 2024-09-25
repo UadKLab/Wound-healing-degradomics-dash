@@ -1,3 +1,9 @@
+## App Runner configuration file ##
+# This file includes build and run commands for the App Runner application, it should not 
+# include operational settings such as CPU and memory.
+
+## --- NOT USED SINCE WE ARE USING ECR INSTEAD OF FETCHING THE HOSTING CODE FROM GITHUB BRANCH --- ##
+
 version: 1.0
 runtime: python3  # Specifies Python 3.9, adjust if needed
 build:
@@ -7,11 +13,12 @@ build:
 
 run:
   runtime-version: 3.8.16  # Lock to Python 3.9.16 specifically
-  command: python app.py  # Replace with your application's entry point
+  command: python dashboard.py  # Replace with your application's entry point
   network:
     port: 8080  # Specify the port your app listens to
 
-# Commented out section is to show how to use environment variables and secrets (you can create secrets using AWS Secrets Manager)
+# Commented out section is to show how to use environment variables and secrets (you can create secrets using
+# AWS Secrets Manager or GitHub secrets and reference them here below)
   # env:  # Environment variables for runtime
   #   - name: MY_VAR_EXAMPLE
   #     value: "example"
@@ -20,6 +27,3 @@ run:
   #     value-from: "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-secret-Abc123"
   #   - name: MY_PARAMETER
   #     value-from: "arn:aws:ssm:us-east-1:123456789012:parameter/my-parameter-name"
-
-
-# "The App Runner configuration file doesn’t include operational settings, such as CPU and memory."
