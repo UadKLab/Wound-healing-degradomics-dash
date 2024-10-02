@@ -1,3 +1,11 @@
+# TODO: use all the same files for development and main but use env variables instead to guide the flow, so 
+# for example if environ==dev then use data folder else use s3 bucket ...
+# Same for wsgi code maybe?
+# Because for best practices then the dev and main branches can be up to date with each other but not possible 
+# with my current setup
+
+
+
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -35,6 +43,12 @@ obj = s3.get_object(Bucket=bucket_name, Key='Imputed_4lowID_removed_joined_pepti
 peptide_data_df = pd.read_csv(obj['Body'], delimiter=';', decimal=',')
 obj = s3.get_object(Bucket=bucket_name, Key='patients.txt')
 patients_txt = obj['Body'].read().decode('utf-8')
+
+# protein_lookup_df = pd.read_csv('data/Normalized_impaired_proteins.csv', delimiter=';', usecols=['Accession', 'Description'])
+# peptide_lookup_df = pd.read_csv('data/Normalized_impaired_peptides.csv', delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
+# protein_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_proteins.csv', delimiter=';', decimal=',')
+# peptide_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_peptides.csv', delimiter=';', decimal=',')
+# patients_txt = open('data/patients.txt', 'r').read()
 
 
 ### Set-up
@@ -460,7 +474,7 @@ def update_plot(selected_protein, selected_peptide, selected_groups_1, selected_
 if __name__ == '__main__':
     #app.run_server(debug=True)
     #app.run_server(debug=False)
-    app.run_server(host='0.0.0.0', port=8000)
+    app.run_server(host='0.0.0.0', port=8000, debug=True)
 
 
 
