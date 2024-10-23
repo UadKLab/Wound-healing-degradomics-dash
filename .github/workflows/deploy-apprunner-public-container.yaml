@@ -60,7 +60,7 @@ jobs:
         mask-password: 'false'
         registry-type: public
       env: 
-        AWS_DEFAULT_REGION: us-east-1   # ECR Public can only be logged into from the us-east-1 region.
+        aws-region: us-east-1   # ECR Public can only be logged into from the us-east-1 region.
 
     #https://github.com/aws-actions/amazon-ecr-login?tab=readme-ov-file#login-to-amazon-ecr-public-then-build-and-push-a-docker-image
     - name: Build, tag, and push docker image to Amazon ECR Public
