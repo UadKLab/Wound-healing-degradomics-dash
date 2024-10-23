@@ -79,10 +79,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.APP_RUNNER_REGION }}
 
+    - name: Output ECR Registry
+      run: echo "ECR_REGISTRY=${{ steps.login-ecr-public.outputs.registry }}"
+
     #https://docs.aws.amazon.com/cli/latest/reference/apprunner/update-service.html
     - name: Update App Runner service
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
         aws apprunner update-service \
