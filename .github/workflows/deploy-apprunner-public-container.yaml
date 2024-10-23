@@ -1,0 +1,81 @@
+## CI/CD pipeline for App Runner application using docker containers ##
+# This file contains code to build and push a docker container to ECR public
+# and then deploys it to App Runner, when there is a push to the "main" branch.
+# This workflow assumes you have configured App Runner and ECR before running it.
+
+# To use this workflow, you will need to complete the following set-up steps:
+#
+# 1. Create an ECR repository to store your images.
+#    For example: `aws ecr-public create-repository --repository-name my-public-ecr-repo`
+#    Replace the value of the `ECR_REPOSITORY` environment variable in the workflow below with your repository's name.
+#    Replace the value of the `AWS_REGION` environment variable in the workflow below with your repository's region.
+#    Replace the value of the `ECR_REGISTRY_ALIAS` environment variable in the workflow below with your registry alias.
+#
+# 2. Create an App Runner service.
+#    For example, follow this guide https://aws.amazon.com/getting-started/guides/deploy-webapp-apprunner/
+#
+# 3. Store an IAM user access key in GitHub Actions secrets named `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+#    See the documentation for each action used below for the recommended IAM policies for this IAM user,
+#    and best practices on handling the access key credentials.
+
+
+name: Deploy to Amazon ECR and Update App Runner
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: eu-west-1  # The region we are using for our services
+  ECR_REPOSITORY: wound-healing-dashboard-repository  # ECR repository name
+  ECR_REGISTRY_ALIAS: a1y2l7y6  # ECR registry alias
+  APP_RUNNER_SERVICE_ARN: arn:aws:apprunner:eu-west-1:418272791068:service/wound-healing-dashboard/aefd7e09fb4b4272bae7426a1fc2c887
+  
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    #TODO: https://github.com/aws-actions/configure-aws-credentials
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    #https://github.com/aws-actions/amazon-ecr-login
+    - name: Login to Amazon ECR Public
+      id: login-ecr-public
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        mask-password: 'false'
+        registry-type: public
+
+    #https://github.com/aws-actions/amazon-ecr-login?tab=readme-ov-file#login-to-amazon-ecr-public-then-build-and-push-a-docker-image
+    - name: Build, tag, and push docker image to Amazon ECR Public
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    #https://docs.aws.amazon.com/cli/latest/reference/apprunner/update-service.html
+    - name: Update App Runner service
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        aws apprunner update-service \
+          --service-arn ${{ env.APP_RUNNER_SERVICE_ARN }}
+          --source-configuration "{\"ImageRepository\": {\"ImageIdentifier\": \"$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\", \"ImageRepositoryType\": \"ECR_PUBLIC\"}}"
