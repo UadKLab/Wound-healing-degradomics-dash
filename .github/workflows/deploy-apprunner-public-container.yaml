@@ -26,7 +26,7 @@ on:
     branches: [ "main" ]
 
 env:
-  AWS_REGION: eu-west-1  # The region we are using for our services
+  AWS_REGION: eu-west-1  # The region we are using for our services (App Runner and ECR repository (only if private since public is always in us-east-1))
   ECR_REPOSITORY: wound-healing-dashboard-repository  # ECR repository name
   ECR_REGISTRY_ALIAS: a1y2l7y6  # ECR registry alias
   APP_RUNNER_SERVICE_ARN: arn:aws:apprunner:eu-west-1:418272791068:service/wound-healing-dashboard/aefd7e09fb4b4272bae7426a1fc2c887
@@ -59,7 +59,6 @@ jobs:
       with:
         mask-password: 'false'
         registry-type: public
-      env: 
         aws-region: us-east-1   # ECR Public can only be logged into from the us-east-1 region.
 
     #https://github.com/aws-actions/amazon-ecr-login?tab=readme-ov-file#login-to-amazon-ecr-public-then-build-and-push-a-docker-image
