@@ -1,11 +1,3 @@
-# TODO: use all the same files for development and main but use env variables instead to guide the flow, so 
-# for example if environ==dev then use data folder else use s3 bucket ...
-# Same for wsgi code maybe?
-# Because for best practices then the dev and main branches can be up to date with each other but not possible 
-# with my current setup
-
-
-
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -18,37 +10,40 @@ import os
 from dotenv import load_dotenv
 import boto3
 
-
 ### Environment variables
 load_dotenv()
-aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-
+ENVIRONMENT = os.getenv('ENVIRONMENT')
 
 ### Load data
-s3 = boto3.client(
-    's3',
-    aws_access_key_id=aws_access_key_id,
-    aws_secret_access_key=aws_secret_access_key
-)
-bucket_name = 'wound-healing-storage'
+if ENVIRONMENT == 'development':
+    # Use local data folder for development
+    protein_lookup_df = pd.read_csv('data/Normalized_impaired_proteins.csv', delimiter=';', usecols=['Accession', 'Description'])
+    peptide_lookup_df = pd.read_csv('data/Normalized_impaired_peptides.csv', delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
+    protein_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_proteins.csv', delimiter=';', decimal=',')
+    peptide_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_peptides.csv', delimiter=';', decimal=',')
+    patients_txt = open('data/patients.txt', 'r').read()
 
-obj = s3.get_object(Bucket=bucket_name, Key='Normalized_impaired_proteins.csv')
-protein_lookup_df = pd.read_csv(obj['Body'], delimiter=';', usecols=['Accession', 'Description'])
-obj = s3.get_object(Bucket=bucket_name, Key='Normalized_impaired_peptides.csv')
-peptide_lookup_df = pd.read_csv(obj['Body'], delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
-obj = s3.get_object(Bucket=bucket_name, Key='Imputed_4lowID_removed_joined_proteins.csv')
-protein_data_df = pd.read_csv(obj['Body'], delimiter=';', decimal=',')
-obj = s3.get_object(Bucket=bucket_name, Key='Imputed_4lowID_removed_joined_peptides.csv')
-peptide_data_df = pd.read_csv(obj['Body'], delimiter=';', decimal=',')
-obj = s3.get_object(Bucket=bucket_name, Key='patients.txt')
-patients_txt = obj['Body'].read().decode('utf-8')
+elif ENVIRONMENT == 'production':
+    # Use S3 bucket for production
+    # NOTE: if you want to run the production docker container locally then you will need to provide AWS access key in compose.yaml
+    s3 = boto3.client(
+        's3'
+    )
+    S3_BUCKET = os.getenv('S3_BUCKET')
 
-# protein_lookup_df = pd.read_csv('data/Normalized_impaired_proteins.csv', delimiter=';', usecols=['Accession', 'Description'])
-# peptide_lookup_df = pd.read_csv('data/Normalized_impaired_peptides.csv', delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
-# protein_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_proteins.csv', delimiter=';', decimal=',')
-# peptide_data_df = pd.read_csv('data/Imputed_4lowID_removed_joined_peptides.csv', delimiter=';', decimal=',')
-# patients_txt = open('data/patients.txt', 'r').read()
+    obj = s3.get_object(Bucket=S3_BUCKET, Key='Normalized_impaired_proteins.csv')
+    protein_lookup_df = pd.read_csv(obj['Body'], delimiter=';', usecols=['Accession', 'Description'])
+    obj = s3.get_object(Bucket=S3_BUCKET, Key='Normalized_impaired_peptides.csv')
+    peptide_lookup_df = pd.read_csv(obj['Body'], delimiter=';', usecols=['Annotated Sequence', 'Modifications', 'Master Protein Accessions'])
+    obj = s3.get_object(Bucket=S3_BUCKET, Key='Imputed_4lowID_removed_joined_proteins.csv')
+    protein_data_df = pd.read_csv(obj['Body'], delimiter=';', decimal=',')
+    obj = s3.get_object(Bucket=S3_BUCKET, Key='Imputed_4lowID_removed_joined_peptides.csv')
+    peptide_data_df = pd.read_csv(obj['Body'], delimiter=';', decimal=',')
+    obj = s3.get_object(Bucket=S3_BUCKET, Key='patients.txt')
+    patients_txt = obj['Body'].read().decode('utf-8')
+
+else:
+    raise ValueError("Unknown environment - please use appropriate environment variables")
 
 
 ### Set-up
@@ -472,14 +467,4 @@ def update_plot(selected_protein, selected_peptide, selected_groups_1, selected_
 
 ## Run app
 if __name__ == '__main__':
-    #app.run_server(debug=True)
-    #app.run_server(debug=False)
     app.run_server(host='0.0.0.0', port=8000, debug=True)
-
-
-
-
-# TODO: fyrir cloud deployment nota S3 bucket (breyta innlestri gagnanna, kannski hreinsa sma til þvi 
-# vid þurfum ekki allar þessar csv skrar) og nota WSGI production server til ad keyra appid (samt paeling
-# ad skoda adeins betur þvi oft i docker eda configuration þa eru "run" leidbeiningar og þar er notad 
-# WSGI server svo kannski er ekki naudsynlegt hér?? Skoda betur!)

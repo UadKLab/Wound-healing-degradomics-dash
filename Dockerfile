@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 
+### Dockerfile for production ###
+
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/go/dockerfile-reference/
@@ -38,14 +40,19 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
-# Switch to the non-privileged user to run the application.
-USER appuser
 
 # Copy the source code into the container.
 COPY . .
+
+# Remove the 'data' folder to keep the image lean for production
+RUN rm -rf /app/data
+
+# Switch to the non-privileged user to run the application.
+USER appuser
 
 # Expose the port that the application listens on.
 EXPOSE 8000
 
 # Run the application.
 CMD python3 dashboard.py
+# TODO: fix!
