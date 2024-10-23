@@ -26,10 +26,11 @@ on:
     branches: [ "main" ]
 
 env:
-  AWS_REGION: eu-west-1  # The region we are using for our services (App Runner and ECR repository (only if private since public is always in us-east-1))
   ECR_REPOSITORY: wound-healing-dashboard-repository  # ECR repository name
   ECR_REGISTRY_ALIAS: a1y2l7y6  # ECR registry alias
   APP_RUNNER_SERVICE_ARN: arn:aws:apprunner:eu-west-1:418272791068:service/wound-healing-dashboard/aefd7e09fb4b4272bae7426a1fc2c887
+  APP_RUNNER_REGION: eu-west-1  # The region for App Runner
+
   
 permissions:
   contents: read
@@ -45,12 +46,12 @@ jobs:
       uses: actions/checkout@v4
     
     #TODO: https://github.com/aws-actions/configure-aws-credentials
-    - name: Configure AWS credentials
+    - name: Configure AWS credentials for public ECR
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: us-east-1   # ECR Public can only be logged into from the us-east-1 region.
 
     #https://github.com/aws-actions/amazon-ecr-login
     - name: Login to Amazon ECR Public
@@ -59,7 +60,6 @@ jobs:
       with:
         mask-password: 'false'
         registry-type: public
-        aws-region: us-east-1   # ECR Public can only be logged into from the us-east-1 region.
 
     #https://github.com/aws-actions/amazon-ecr-login?tab=readme-ov-file#login-to-amazon-ecr-public-then-build-and-push-a-docker-image
     - name: Build, tag, and push docker image to Amazon ECR Public
@@ -70,6 +70,14 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    #TODO: https://github.com/aws-actions/configure-aws-credentials
+    - name: Configure AWS credentials for App Runner
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.APP_RUNNER_REGION }}
 
     #https://docs.aws.amazon.com/cli/latest/reference/apprunner/update-service.html
     - name: Update App Runner service
