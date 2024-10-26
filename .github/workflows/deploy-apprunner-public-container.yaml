@@ -51,7 +51,7 @@ jobs:
     - name: Configure AWS credentials (use OIDC)
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ GITHUB_ACTIONS_ROLE_ARN }}
+        role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
         aws-region: us-east-1   # ECR Public can only be logged into from the us-east-1 region
     # - name: Configure AWS credentials for public ECR (use aws access key)
     #   uses: aws-actions/configure-aws-credentials@v1
@@ -83,7 +83,7 @@ jobs:
     - name: Configure AWS credentials (use OIDC)
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ GITHUB_ACTIONS_ROLE_ARN }}
+        role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
         aws-region: ${{ env.APP_RUNNER_REGION }}
     # - name: Configure AWS credentials for App Runner
     #   uses: aws-actions/configure-aws-credentials@v1
