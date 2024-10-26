@@ -191,6 +191,9 @@ del patients_txt
 # Initialize Dash app
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+# Server attribute that points to the Flask server inside Dash
+server = app.server
+
 # Define app layout
 app.layout = html.Div(
     className='dashboard-container',
