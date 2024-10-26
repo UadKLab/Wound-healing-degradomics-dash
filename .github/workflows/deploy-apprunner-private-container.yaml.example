@@ -27,6 +27,7 @@ on:
 
 env:
   AWS_REGION: eu-west-1  # App Runner and ECR service region
+  GITHUB_ACTIONS_ROLE_ARN: arn:aws:iam::418272791068:role/GitHubAction-AssumeRoleWithAction   # ARN of the role which allows github actions to connect with AWS
   ECR_REPOSITORY: wound-healing-dashboard-container-repository  # ECR repository name
   APP_RUNNER_SERVICE_ARN: arn:aws:apprunner:eu-west-1:418272791068:service/wound-healing-dashboard/aefd7e09fb4b4272bae7426a1fc2c887   # App Runner ARN
 
@@ -43,13 +44,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-      #TODO: https://github.com/aws-actions/configure-aws-credentials
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      #https://github.com/aws-actions/configure-aws-credentials?tab=readme-ov-file#oidc
+    - name: Configure AWS credentials (use OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
+    # - name: Configure AWS credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: ${{ env.AWS_REGION }}
 
     #https://github.com/aws-actions/amazon-ecr-login
     - name: Login to Amazon ECR
