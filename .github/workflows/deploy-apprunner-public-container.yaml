@@ -22,8 +22,9 @@
 name: Deploy to Amazon ECR Public and Update App Runner
 
 on:
+  workflow_dispatch:   # Allows to run workflow manually
   push:
-    branches: [ "main" ]
+    branches: [ "main" ]   # Run workflow automatically on push on main branch
 
 env:
   GITHUB_ACTIONS_ROLE_ARN: arn:aws:iam::418272791068:role/GitHubAction-AssumeRoleWithAction   # ARN of the role which allows github actions to connect with AWS

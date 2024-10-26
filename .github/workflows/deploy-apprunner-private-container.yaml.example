@@ -22,8 +22,9 @@
 name: Deploy to Amazon ECR Private and Update App Runner
 
 on:
+  workflow_dispatch:   # Allows to run workflow manually
   push:
-    branches: [ "main" ]
+    branches: [ "main" ]   # Run workflow automatically on push on main branch
 
 env:
   AWS_REGION: eu-west-1  # App Runner and ECR service region
