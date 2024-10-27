@@ -11,8 +11,9 @@ from dotenv import load_dotenv
 import boto3
 
 ### Environment variables
-load_dotenv()
-ENVIRONMENT = os.getenv('ENVIRONMENT')
+ENVIRONMENT = os.getenv('ENVIRONMENT', default='development')
+env_file = f".env.{ENVIRONMENT}"
+load_dotenv(env_file)
 
 ### Load data
 if ENVIRONMENT == 'development':
@@ -25,7 +26,7 @@ if ENVIRONMENT == 'development':
 
 elif ENVIRONMENT == 'production':
     # Use S3 bucket for production
-    # NOTE: if you want to run the production docker container locally then you will need to provide AWS access key in compose.yaml
+    # NOTE: if you want to run the production docker container locally then you will need to provide AWS access key in .env.production file
     s3 = boto3.client(
         's3'
     )

@@ -15,12 +15,8 @@ services:
       context: .
       dockerfile: Dockerfile
     image: wound-healing-dashboard:prod
-    environment:
-      - ENVIRONMENT=production
-      - S3_BUCKET=${S3_BUCKET}
-      # AWS access key only used in production code run locally
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    env_file:
+      - .env.production
     ports:
       - 8000:8000
 
