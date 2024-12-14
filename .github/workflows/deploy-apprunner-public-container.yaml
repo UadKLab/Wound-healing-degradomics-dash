@@ -14,9 +14,11 @@
 # 2. Create an App Runner service.
 #    For example, follow this guide https://aws.amazon.com/getting-started/guides/deploy-webapp-apprunner/
 #
+# If not using OIDC then:
 # 3. Store an IAM user access key in GitHub Actions secrets named `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 #    See the documentation for each action used below for the recommended IAM policies for this IAM user,
 #    and best practices on handling the access key credentials.
+
 
 
 name: Deploy to Amazon ECR Public and Update App Runner
@@ -49,7 +51,7 @@ jobs:
       uses: actions/checkout@v4
     
     #https://github.com/aws-actions/configure-aws-credentials?tab=readme-ov-file#oidc
-    - name: Configure AWS credentials (use OIDC)
+    - name: Configure AWS credentials for public ECR (use OIDC)
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
@@ -81,11 +83,11 @@ jobs:
         echo "image=$ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
     #https://github.com/aws-actions/configure-aws-credentials?tab=readme-ov-file#oidc
-    - name: Configure AWS credentials (use OIDC)
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
-        aws-region: ${{ env.APP_RUNNER_REGION }}
+    # - name: Configure AWS credentials for App Runner (use OIDC)
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
+    #     aws-region: ${{ env.APP_RUNNER_REGION }}
     # - name: Configure AWS credentials for App Runner
     #   uses: aws-actions/configure-aws-credentials@v1
     #   with:
@@ -93,8 +95,8 @@ jobs:
     #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     #     aws-region: ${{ env.APP_RUNNER_REGION }}
 
-    - name: Output ECR Registry
-      run: echo "ECR_REGISTRY=${{ steps.login-ecr-public.outputs.registry }}"
+    # - name: Output ECR Registry
+    #   run: echo "ECR_REGISTRY=${{ steps.login-ecr-public.outputs.registry }}"
 
     #https://docs.aws.amazon.com/cli/latest/reference/apprunner/update-service.html
     - name: Update App Runner service
