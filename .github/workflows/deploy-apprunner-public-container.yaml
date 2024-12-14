@@ -83,20 +83,18 @@ jobs:
         echo "image=$ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
     #https://github.com/aws-actions/configure-aws-credentials?tab=readme-ov-file#oidc
-    # - name: Configure AWS credentials for App Runner (use OIDC)
-    #   uses: aws-actions/configure-aws-credentials@v4
-    #   with:
-    #     role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
-    #     aws-region: ${{ env.APP_RUNNER_REGION }}
+    # NOTE: here we need to login again to AWS because when using public ECR we where logging in from another region
+    - name: Configure AWS credentials for App Runner (use OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.GITHUB_ACTIONS_ROLE_ARN }}
+        aws-region: ${{ env.APP_RUNNER_REGION }}
     # - name: Configure AWS credentials for App Runner
     #   uses: aws-actions/configure-aws-credentials@v1
     #   with:
     #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
     #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     #     aws-region: ${{ env.APP_RUNNER_REGION }}
-
-    # - name: Output ECR Registry
-    #   run: echo "ECR_REGISTRY=${{ steps.login-ecr-public.outputs.registry }}"
 
     #https://docs.aws.amazon.com/cli/latest/reference/apprunner/update-service.html
     - name: Update App Runner service
